@@ -1,0 +1,212 @@
+import pygame
+import math
+from random import randrange
+import sys
+from vectors import add_vectors
+import time
+import random
+
+global ScreenWidth, ScreenHeight
+size = ScreenWidth, ScreenHeight = 200, 400
+screen = pygame.display.set_mode(size)
+black = 0, 0, 0
+blue = 0, 0, 255
+red = 255,0,0
+green = 127,255,0
+clock = pygame.time.Clock()
+pygame.key.set_repeat(1,1)
+
+
+class Block(pygame.sprite.Sprite):
+
+    # Constructor. Pass in the color of the block and its x and y position
+    def __init__(self, color, width, height):
+		pygame.sprite.Sprite.__init__(self)
+		self.width = width
+		self.height = height
+		self.color = color
+		self.image = pygame.Surface([self.width, self.height])
+		self.image.fill(self.color)
+		self.rect = self.image.get_rect()
+
+
+class Ball(pygame.sprite.Sprite):
+    # Constructor. Pass in the color of the block, and its x and y position
+    def __init__(self, color, width, height, speedX, speedY):
+		pygame.sprite.Sprite.__init__(self)
+		self.speedx = speedX
+		self.speedy = speedY
+        	self.image = pygame.Surface([width, height])
+		self.image.fill(color)
+		self.rect = self.image.get_rect()
+ 
+class Laser(pygame.sprite.Sprite):
+	#create a laser that when down (Paddle1) or up (Paddle2) is pressed the laser can hit the ball and change the direction of the ball in y. Then work to pause the player
+	def __init__(self, color, width, height, speedX, speedY):
+		pygame.sprite.Sprite.__init__(self)
+		self.speedy = speedY
+		self.width = width
+		self.height = height
+		self.image = pygame.Surface([self.width, self.height])
+		self.image.fill(color)
+		self.rect = self.image.get_rect()
+class Laser2(pygame.sprite.Sprite):
+	#create a laser that when down (Paddle1) or up (Paddle2) is pressed the laser can hit the ball and change the direction of the ball in y. Then work to pause the player
+	def __init__(self, color, width, height, speedX, speedY):
+		pygame.sprite.Sprite.__init__(self)
+                    self.speedy = speedY
+                    self.width = width
+                    self.height = height
+                    self.image = pygame.Surface([self.width, self.height])
+                    self.image.fill(color)
+                    self.rect = self.image.get_rect()
+
+		
+def addScore():
+	global Paddle1Score, Paddle2Score
+	if pygame.font:
+            # Show the Score Player 1
+		font = pygame.font.Font(None, 16)
+		text1 = font.render("Paddle1Score: " + str(Paddle1Score), 1, (10, 10, 10))
+		textpos1 = text1.get_rect(centerx=screen.get_width()/4, centery = screen.get_height()/2)
+		screen.blit(text1, textpos1)
+            # Show the Score Player 2
+		text2 = font.render("Paddle2Score: " + str(Paddle2Score), 1, (10, 10, 10))
+		textpos2 = text2.get_rect(centerx=screen.get_width()*3/4, centery = screen.get_height()/2)
+		screen.blit(text2, textpos2)
+            # Show test data - Show laser traveling	
+		text3 = font.render("Test Data: " + str(laser.rect.y) + str(ScreenHeight), 1, (10, 10, 10))
+		textpos3 = text3.get_rect(centerx=screen.get_width()*1/2, centery = screen.get_height()/4)
+		screen.blit(text3, textpos3)
+		
+def BallMove (self):
+		global Paddle1Score, Paddle2Score
+		self.rect.x = self.rect.x + self.speedx
+		self.rect.y = self.rect.y + self.speedy
+		if paddle2.rect.colliderect(self.rect) == 1:
+			self.speedy = -self.speedy
+		if paddle1.rect.colliderect(self.rect) == 1:
+			self.speedy = -self.speedy
+		if self.rect.colliderect(laser.rect) == 1:
+			self.speedy = -self.speedy
+			self.speedx = -(self.speedx)
+		if self.rect.x == (0) or self.rect.x == ScreenWidth:
+			self.speedx = -(self.speedx)
+		if self.rect.y == (ScreenHeight):
+			Paddle2Score = Paddle2Score + 1
+			self.rect.x = 100
+			self.rect.y = 200
+		if self.rect.y == (0):
+			Paddle1Score = Paddle1Score + 1
+			self.rect.x = 100
+			self.rect.y = 200
+		if  pygame.sprite.spritecollide(ball1, LaserGroup, False) != [] or pygame.sprite.spritecollide(ball1, LaserGroup2, False) != []:
+			self.speedy =  self.speedy
+			self.speedx = -(self.speedx)
+
+
+def LaserMove(self, Paddle):
+		global ScreenHeight
+		self.rect.x = (Paddle.rect.x) + Paddle.width/2 + self.speedx
+		self.rect.y = Paddle.rect.y + self.speedy
+		
+
+keys_pressed = pygame.key.get_pressed()
+
+paddle1 = Block(black, 30, 5)
+paddle1.rect.x = ScreenWidth/2
+paddle1.rect.y = 10
+paddle1.speed = 2
+
+paddle2 = Block(black, 30, 5)
+paddle2.rect.x = ScreenWidth / 2
+paddle2.rect.y = ScreenHeight - 10
+paddle2.speed = 2
+
+ball1 = Ball(red, 5, 5,1,1)
+ball1.rect.x = ScreenWidth/2
+ball1.rect.y = ScreenHeight/2
+
+laser = Laser(green,10,20,0,1)
+laser.speedx = 0
+laser.speedy = 1
+LaserGroup = pygame.sprite.Group()
+
+laser2 = Laser2(green,10,20,0,1)
+laser2.speedx = 0
+laser2.speedy = -1
+LaserGroup2 = pygame.sprite.Group()
+
+all_sprites_list = pygame.sprite.Group()
+all_sprites_list.add(paddle1)
+all_sprites_list.add(paddle2)
+all_sprites_list.add(ball1)
+
+Clock_Speed = 120
+count = 0
+score = 0
+
+ball1.speedx = -1
+ball1.speedy = -1
+Paddle1Score = 0
+Paddle2Score = 0
+
+pygame.init()
+
+
+while True:
+	clock.tick(Clock_Speed)
+	screen.fill(blue)
+	all_sprites_list.clear(screen, screen)
+	if laser.rect.y < ScreenHeight:
+		laser.rect.y = laser.rect.y + 1
+            elif laser.rect.y >= ScreenHeight:
+		all_sprites_list.remove(laser)
+            if laser2.rect.y > 0:
+		laser2.rect.y = laser2.rect.y - 1
+            elif laser2.rect.y <= 0:
+		all_sprites_list.remove(laser2)	
+	
+	a = pygame.sprite.groupcollide(LaserGroup2, LaserGroup, False, False)
+	
+	if pygame.sprite.groupcollide(LaserGroup2, LaserGroup, False, False):
+		for key, value in a.iteritems():
+			print  key, value
+
+	BallMove(ball1) # Start the ball
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT: sys.exit()
+	
+		if event.type == pygame.KEYDOWN:
+			#################Paddle1########################
+			if pygame.key.get_pressed()[pygame.K_RIGHT]== True and paddle1.rect.x < (ScreenWidth - paddle1.width):
+				paddle1.rect.x = paddle1.rect.x + paddle1.speed
+			if pygame.key.get_pressed()[pygame.K_LEFT]== True and paddle1.rect.x > (0):
+				paddle1.rect.x = paddle1.rect.x - paddle1.speed
+
+			if pygame.key.get_pressed()[pygame.K_DOWN]== True: # and laser.alive() == 0:
+				laser.kill()
+				laser = Laser(green,10,20,0,1)
+				laser.speedx = 0
+				laser.speedy = 1
+				LaserMove(laser, paddle1)
+				all_sprites_list.add(laser)
+				LaserGroup.add(laser)
+
+			#################Paddle2########################
+			if pygame.key.get_pressed()[pygame.K_d]== True and paddle2.rect.x < (ScreenWidth - paddle2.width): 
+				paddle2.rect.x = paddle2.rect.x + paddle2.speed
+			if pygame.key.get_pressed()[pygame.K_a]== True and paddle2.rect.x > (0):
+				paddle2.rect.x = paddle2.rect.x - paddle2.speed
+			if pygame.key.get_pressed()[pygame.K_w]== True: # and laser.alive() == 0:
+				laser2.kill()
+				laser2 = Laser(green,10,20,0,1)
+				laser2.speedx = 0
+				laser2.speedy = -1
+				LaserMove(laser2, paddle2)
+				all_sprites_list.add(laser2)
+				LaserGroup2.add(laser2)
+	#print "Laser Coord X %s Laser Coord Y %s" % (laser.rect.x, laser.rect.y)			
+	addScore()
+	all_sprites_list.draw(screen) # draw all objects onto the4 screen
+	pygame.display.flip()
